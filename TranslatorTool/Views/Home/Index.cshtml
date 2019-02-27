@@ -1,0 +1,73 @@
+﻿@{
+    ViewData["Title"] = "Translator tool";
+}
+
+<div class="col-md-12">
+    <div class="col-md-12" style="background-color:lightblue; padding-top:50px;padding-bottom:20px;">
+        <textarea id="text" class="form-control col-md-12"></textarea> <br />
+    </div>
+    <br />
+    <label>Translated text: </label><br />
+    <label id="translated" style="width: 500px; border:none;" disabled></label><br />
+
+    <input type="hidden" id="translationId" value="" />
+    <div class="col-md-2 pull-right">
+        <button class="btn btn-warning btn-block" id="btnNext">OK - continue</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous"></script>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        var timer = 0;
+        var seconds = 3;
+        $('#text').keydown(function () {
+            clearTimeout(timer);
+        });
+        $('#text').keyup(function () {
+            clearTimeout(timer);
+            timer = setTimeout(translate, seconds * 1000);
+        });
+
+
+        function translate() {
+            var url = "https://translation.googleapis.com/language/translate/v2";
+            var from = $('#text').val();
+            url += "?q=" + escape(from);
+            url += "&target=sr&source=en";
+            url += "&key=AIzaSyBJSsXT8a9PCrIJGupcJB3IrfVkhvjN5RQ";
+            $.get(url, function (data, status) {
+                console.log(data);
+                var to = data.data.translations[0].translatedText;
+                $("#translated").text(to);
+                $.post("/Home/Create",
+                    {
+                        "from": from,
+                        "to": to
+                    },
+                    function (response) {
+                        console.log(response);
+                        if (response !== false) {
+                            $('#translationId').val(response.Id);
+                        }
+                    }
+                );
+            });
+            //console.log("pozvana translate metoda");
+        }
+        $('#btnNext').click(function () {
+            var translation = $('#translationId').val();
+            if (translation === false || translation < 1) {
+                alert("You didn't translate anything so you can't proceed!");
+                return;
+            }
+            window.location.href = "/Home/View/?id=" + translation;
+        })
+
+    });
+</script>

@@ -1,0 +1,11 @@
+﻿@model TranslatorTool.Translation
+
+@{
+    ViewData["Title"] = "Translator tool";
+}
+
+
+<div class="col-md-12">
+    <label>Your final translation is: </label><br />
+    <label id="translated" style="width: 500px; border:none;" disabled>@Model.To</label>
+</div>
